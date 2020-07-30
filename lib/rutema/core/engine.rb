@@ -135,7 +135,7 @@ module Rutema
     
     def is_spec_included? test_identifier
       full_path=File.expand_path(test_identifier)
-      return tests.include?(full_path) || is_special?(test_identifier) 
+      return @configuration.tests.include?(full_path) || is_special?(test_identifier)
     end
 
     def is_special? test_identifier

@@ -9,7 +9,7 @@ Hoe.spec "rutema" do |prj|
   license "MIT"
   prj.version = Rutema::Version::STRING
   prj.summary='rutema is a test execution and management framework for heterogeneous testing environments'
-  prj.urls=["http://github.com/damphyr/rutema"]
+  prj.urls={ "home" => "http://github.com/damphyr/rutema" }
   prj.description=prj.paragraphs_of('README.md',1..5).join("\n\n")
   prj.local_rdoc_dir='doc/rdoc'
   prj.readme_file="README.md"
