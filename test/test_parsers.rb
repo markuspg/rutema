@@ -1,8 +1,9 @@
 # Copyright (c) 2007-2020 Vassilis Rizopoulos. All rights reserved.
 
-require 'test/unit'
 require 'ostruct'
+require 'test/unit'
 require 'mocha/setup'
+
 require_relative '../lib/rutema/parsers/xml'
 
 
@@ -19,6 +20,7 @@ module TestRutema
     </scenario>
     </specification>
     EOT
+
     INCLUDE_SPEC=<<-EOT
     <specification name="include">
     <title>Title</title>
@@ -29,6 +31,7 @@ module TestRutema
     </scenario>
     </specification>
     EOT
+
     BAD_INCLUDE_SPEC=<<-EOT
     <specification name="bad_include">
     <title>Title</title>
@@ -38,6 +41,7 @@ module TestRutema
     </scenario>
     </specification>
     EOT
+
     MISSING_INCLUDE_SPEC=<<-EOT
     <specification name="bad_include">
     <title>Title</title>
@@ -47,6 +51,7 @@ module TestRutema
     </scenario>
     </specification>
     EOT
+
     MINIMAL_SPEC=<<-EOT
     <specification name="sample">
     <title>Title</title>
@@ -57,6 +62,7 @@ module TestRutema
     </scenario>
     </specification>
     EOT
+
     INCLUDE_SCENARIO=<<-EOT
     <?xml version="1.0" encoding="UTF-8"?>
     <scenario>
@@ -65,6 +71,7 @@ module TestRutema
     </scenario>
     EOT
   end
+
   class TestSpecificationParser<Test::Unit::TestCase
     def test_specification_parser
       parser=nil
@@ -74,6 +81,7 @@ module TestRutema
       assert_raise(Rutema::ParserError) { parser.parse_specification("foo") }
     end
   end
+
   class TestXMLParser<Test::Unit::TestCase
     def test_parse_specification
       config=stub()
@@ -92,6 +100,7 @@ module TestRutema
       assert_raise(Rutema::ParserError) { parser.parse_specification("") }
       assert_raise(Rutema::ParserError) { parser.parse_specification("missing.spec") }
     end
+
     def test_include
       config=stub()
       config.stubs(:parser).returns({})
@@ -102,6 +111,7 @@ module TestRutema
       assert_raise(Rutema::ParserError) {  parser.parse_specification(Samples::BAD_INCLUDE_SPEC) }
       assert_raise(Rutema::ParserError) {  parser.parse_specification(Samples::MISSING_INCLUDE_SPEC) }
     end
+
     def test_parse_error
       config=stub()
       config.stubs(:parser).returns({})

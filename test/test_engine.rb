@@ -1,8 +1,9 @@
 # Copyright (c) 2007-2020 Vassilis Rizopoulos. All rights reserved.
 
-require 'test/unit'
 require 'ostruct'
+require 'test/unit'
 require 'mocha/setup'
+
 require_relative '../lib/rutema/core/engine'
 require_relative '../lib/rutema/core/objectmodel'
 require_relative '../lib/rutema/parsers/xml'
@@ -24,13 +25,16 @@ module TestRutema
       @@updates=0
       super
     end
+
     def update data
       #p data
       @@updates+=1
     end
+
     def exit
       super
     end
+
     def self.updates
       return @@updates
     end

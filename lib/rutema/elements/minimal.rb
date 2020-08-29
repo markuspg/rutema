@@ -1,6 +1,7 @@
 # Copyright (c) 2007-2020 Vassilis Rizopoulos. All rights reserved.
 
 require 'highline'
+
 module Rutema
   #The Elements module provides the namespace for the various modules adding parser functionality
   module Elements
@@ -18,6 +19,7 @@ module Rutema
         step.cmd=Patir::RubyCommand.new("echo"){|cmd| cmd.error="";cmd.output="#{step.text}";$stdout.puts(cmd.output) ;:success}
         return step
       end
+
       #prompt asks the user a yes/no question. Answering yes means the step is succesful.
       # <prompt text="Do you want fries with that?"/>
       #
@@ -35,6 +37,7 @@ module Rutema
         end#do rubycommand
         return step
       end
+
       #command executes a shell command
       # <command cmd="useful_command.exe with parameters", working_directory="some/directory"/>
       def element_command step

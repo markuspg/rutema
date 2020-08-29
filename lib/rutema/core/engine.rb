@@ -1,6 +1,7 @@
 # Copyright (c) 2007-2020 Vassilis Rizopoulos. All rights reserved.
 
 require 'thread'
+
 require_relative 'parser'
 require_relative 'reporter'
 require_relative 'runner'
@@ -14,6 +15,7 @@ module Rutema
   #The full workflow is Parse->Run->Report and corresponds to one call of the Engine#run method
   class Engine
     include Messaging
+
     def initialize configuration
       @queue=Queue.new
       @parser=instantiate_class(configuration.parser,configuration) if configuration.parser
@@ -30,6 +32,7 @@ module Rutema
       @dispatcher=Dispatcher.new(@queue,configuration)
       @configuration=configuration
     end
+
     #Parse, run, report
     def run test_identifier=nil
       @dispatcher.run!
@@ -48,6 +51,7 @@ module Rutema
       @dispatcher.exit
       @dispatcher.report(tests)
     end
+
     #Parse a single test spec or all the specs listed in the configuration
     def parse test_identifier=nil
       specs=[]
@@ -67,12 +71,15 @@ module Rutema
       suite_setup,suite_teardown,setup,teardown=parse_specials(@configuration)
       return [suite_setup,suite_teardown,setup,teardown,specs]
     end
+
     private
+
     def parse_specifications tests
       tests.map do |t| 
         parse_specification(t)
       end.compact
     end
+
     def parse_specification spec_identifier
       begin
         @parser.parse_specification(spec_identifier)
@@ -81,6 +88,7 @@ module Rutema
         raise Rutema::ParserError, "In #{spec_identifier}: #{$!.message}" 
       end
     end
+
     def parse_specials configuration
       suite_setup=nil
       suite_teardown=nil
@@ -100,6 +108,7 @@ module Rutema
       end
       return suite_setup,suite_teardown,setup,teardown
     end
+
     def run_scenarios specs,suite_setup,suite_teardown,setup,teardown
       if specs.empty?
         error(nil,"No tests to run")
@@ -121,6 +130,7 @@ module Rutema
         end
       end
     end
+
     def run_test specification, is_special = false
       if specification.scenario
         status=@runner.run(specification, is_special)["status"]
@@ -130,6 +140,7 @@ module Rutema
       end
       return status
     end
+
     def instantiate_class definition,configuration
       if definition[:class]
         klass=definition[:class]
@@ -137,7 +148,7 @@ module Rutema
       end
       return nil
     end
-    
+
     def is_spec_included? test_identifier
       full_path=File.expand_path(test_identifier)
       return @configuration.tests.include?(full_path) || is_special?(test_identifier)
@@ -151,6 +162,7 @@ module Rutema
       full_path==@configuration.teardown  
     end
   end
+
   #The Rutema::Dispatcher functions as a demultiplexer between Rutema::Engine and the various reporters.
   #
   #In stream mode the incoming queue is popped periodically and the messages are destributed to the queues of any subscribed event reporters.
@@ -159,6 +171,7 @@ module Rutema
   class Dispatcher
     #The interval between queue operations
     INTERVAL=0.01
+
     def initialize queue,configuration
       @queue = queue
       @queues = {}
@@ -173,6 +186,7 @@ module Rutema
       @streaming_reporters<<@collector
       @configuration=configuration
     end
+
     #Call this to establish a queue with the given identifier
     def subscribe identifier
       @queues[identifier]=Queue.new
@@ -204,7 +218,9 @@ module Rutema
         Thread.kill(@thread)
       end
     end
+
     private
+
     def flush
       puts "Flushing queues" if $DEBUG
       if @thread
@@ -214,6 +230,7 @@ module Rutema
         end
       end
     end
+
     def instantiate_reporter definition,configuration
       if definition[:class]
         klass=definition[:class]
@@ -221,6 +238,7 @@ module Rutema
       end
       return nil
     end
+
     def dispatch
       if @queue.size>0
         data=@queue.pop

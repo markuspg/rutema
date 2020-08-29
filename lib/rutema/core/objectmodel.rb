@@ -18,6 +18,7 @@ module Rutema
         when Symbol then @attributes[symbol]=value
       end
     end
+
     #allows us to call object.attribute, object.attribute=, object.attribute? and object.has_attribute?
     #
     #object.attribute and object.attribute? will throw NoMethodError if no attribute is set.
@@ -47,10 +48,12 @@ module Rutema
       end
     end
   end
+
   #A Rutema::Specification encompasses all elements required to run a test, the builds used, the scenario to run,
   #together with a textual description and information that aids in tracing the test back to the requirements.
   class Specification
     include SpecificationElement
+
     attr_accessor :scenario
     #Expects a Hash of parameters
     #
@@ -80,10 +83,12 @@ module Rutema
       @attributes[:description]||=""
       @scenario=@attributes[:scenario]
     end
+
     def to_s#:nodoc: 
       return "#{@attributes[:name]} - #{@attributes[:title]}"
     end
   end
+
   #A Rutema::Scenario is a sequence of Rutema::Step instances.
   #
   #Rutema::Step instances are run in the definition sequence and the scenario
@@ -95,22 +100,26 @@ module Rutema
   #Failure in a step results in the interruption of execution and the report of the errors.
   class Scenario
     include SpecificationElement
+
     attr_reader :steps
-    
+
     def initialize steps
       @attributes=Hash.new
       @steps=steps
       @steps||=Array.new
     end
+
     #Adds a step at the end of the step sequence
     def add_step step
       @steps<<step
     end
+
     #Overwrites the step sequence
     def steps= array_of_steps
       @steps=array_of_steps
     end
   end
+
   #Represents a step in a Scenario.
   #
   #Each Rutema::Step can have text and a command associated with it. 
@@ -152,7 +161,7 @@ module Rutema
   class Step
     include SpecificationElement
     include Patir::Command
-    
+
     #_txt_ describes the step, _cmd_ is the command to run
     def initialize txt="",cmd=nil
       @attributes=Hash.new
@@ -168,56 +177,69 @@ module Rutema
       @number=0
       @attributes[:step_type]="step"
     end
-    
+
     def name
       return name_with_parameters
     end
+
     def output
       return "" unless @attributes[:cmd]
       return @attributes[:cmd].output
     end
+
     def error
       return "no command associated" unless @attributes[:cmd]
       return @attributes[:cmd].error
     end
+
     def backtrace
       return "no backtrace associated" unless @attributes[:cmd]
       return @attributes[:cmd].backtrace
     end
+
     def skip_on_error?
       return false unless @attributes[:skip_on_error]
       return @attributes[:skip_on_error]
     end
+
     def ignore?
       return false unless @attributes[:ignore]
       return @attributes[:ignore]
     end
+
     def continue?
       return false unless @attributes[:continue]
       return @attributes[:continue]
-    end    
+    end
+
     def exec_time
       return 0 unless @attributes[:cmd]
       return @attributes[:cmd].exec_time
     end
+
     def status
       return :warning unless @attributes[:cmd]
       return @attributes[:cmd].status
     end
+
     def status= st
       @attributes[:cmd].status=st if @attributes[:cmd]
     end
+
     def run context=nil
       return not_executed unless @attributes[:cmd]
       return @attributes[:cmd].run(context)
     end
+
     def reset
       @attributes[:cmd].reset if @attributes[:cmd]
     end
+
     def name_with_parameters
       param=" - #{self.cmd.to_s}" if self.has_cmd?
       return "#{@attributes[:step_type]}#{param}"
     end
+
     def to_s#:nodoc:
       if self.has_cmd?
         msg="#{self.number} - #{self.cmd.to_s}"
@@ -228,7 +250,6 @@ module Rutema
       return msg
     end
   end
-  
 end
 
 class Patir::ShellCommand

@@ -1,9 +1,11 @@
 # Copyright (c) 2007-2020 Vassilis Rizopoulos. All rights reserved.
 
-require_relative '../lib/rutema/core/configuration'
 #$DEBUG=true
+
 require 'test/unit'
 require 'mocha/setup'
+
+require_relative '../lib/rutema/core/configuration'
 
 FULL_CONFIG=<<-EOT
 configure do |cfg|

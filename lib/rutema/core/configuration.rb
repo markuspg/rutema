@@ -1,8 +1,10 @@
 # Copyright (c) 2007-2020 Vassilis Rizopoulos. All rights reserved.
 
-  require 'ostruct'
-  require_relative 'parser'
-  require_relative 'reporter'
+require 'ostruct'
+
+require_relative 'parser'
+require_relative 'reporter'
+
   module Rutema
     #This module defines the "configuration directives" used in the configuration of Rutema
     #
@@ -15,8 +17,18 @@
     # configuration.parser={:class=>Rutema::MinimalXMLParser}
     # configuration.tests=FileList['all/of/the/tests/**/*.*']
     module ConfigurationDirectives
-      attr_reader :parser,:runner,:tools,:paths,:tests,:context,:setup,:teardown,:suite_setup,:suite_teardown
+      attr_reader :parser
+      attr_reader :runner
+      attr_reader :tools
+      attr_reader :paths
+      attr_reader :tests
+      attr_reader :context
+      attr_reader :setup
+      attr_reader :teardown
+      attr_reader :suite_setup
+      attr_reader :suite_teardown
       attr_accessor :reporters
+
       #Adds a hash of values to the tools hash of the configuration
       #
       #This hash is then accessible in the parser and reporters as a property of the configuration instance
@@ -36,6 +48,7 @@
         raise ConfigurationException,"required key :name is missing from #{definition}" unless definition[:name]
         @tools[definition[:name]]=definition
       end
+
       #Adds a path to the paths hash of the configuration
       #
       #Required keys:
@@ -48,18 +61,21 @@
         raise ConfigurationException,"required key :path is missing from #{definition}" unless definition[:path]
         @paths[definition[:name]]=definition[:path]
       end
+
       #Path to the setup specification. (optional)
       #
       #The setup test runs before every test.
       def setup= path
         @setup=check_path(path)
       end
+
       #Path to the teardown specification. (optional)
       #
       #The teardown test runs after every test.    
       def teardown= path
         @teardown=check_path(path)
       end
+
       #Path to the suite setup specification. (optional)
       #
       #The suite setup test runs once in the beginning of a test run before all the tests.
@@ -79,6 +95,7 @@
       def suite_teardown= path
         @suite_teardown=check_path(path)
       end
+
       #Hash values for passing data to the system. It's supposed to be used in the reporters and contain 
       #values such as version numbers, tester names etc.
       def context= definition
@@ -86,6 +103,7 @@
         raise ConfigurationException,"Only accepting hash values as context_data" unless definition.kind_of?(Hash)
         @context.merge!(definition)
       end
+
       #Adds the specification identifiers available to this instance of Rutema
       #
       #These will usually be files, but they can be anything.
@@ -93,6 +111,7 @@
       def tests= array_of_identifiers
         @tests+=array_of_identifiers.map{|f| full_path(f)}
       end
+
       #A hash defining the parser to use.
       #
       #The hash is passed as is to the parser constructor and each parser should define the necessary configuration keys.
@@ -105,6 +124,7 @@
         raise ConfigurationException,"required key :class is missing from #{definition}" unless definition[:class]
         @parser=definition
       end
+
       #A hash defining the runner to use.
       #
       #The hash is passed as is to the runner constructor and each runner should define the necessary configuration keys.
@@ -117,6 +137,7 @@
         raise ConfigurationException,"required key :class is missing from #{definition}" unless definition[:class]
         @runner=definition
       end
+
       #Adds a reporter to the configuration.
       #
       #As with the parser, the only required configuration key is :class and the definition hash is passed to the class' constructor.
@@ -126,6 +147,7 @@
         raise ConfigurationException,"required key :class is missing from #{definition}" unless definition[:class]
         @reporters[definition[:class]]=definition
       end
+
       #:stopdoc
       def init
         @reporters={}
@@ -134,14 +156,18 @@
         @tools=OpenStruct.new
         @paths=OpenStruct.new
       end
+
       #:startdoc
-      private 
+
+      private
+
       #Checks if a path exists and raises a ConfigurationException if not
       def check_path path
         path=File.expand_path(path)
         raise ConfigurationException,"#{path} does not exist" unless File.exist?(path)
         return path
       end
+
       #Gives back a string of key=value,key=value for a hash
       def definition_string definition
         msg=Array.new
@@ -157,12 +183,15 @@
 
     class ConfigurationException<RuntimeError
     end
+
     #The object we pass around after we load the configuration from file
     #
     #All relevant methods are in Rutema::ConfigurationDirectives
     class Configuration
       include ConfigurationDirectives
+
       attr_reader :filename
+
       def initialize config_file
         @filename=config_file
         init
@@ -174,6 +203,7 @@
           yield self
         end
       end
+
       #Loads the configuration from a file
       #
       #Use this to chain configuration files together
@@ -192,6 +222,7 @@
       end
 
       private
+
       def load_configuration filename
         begin 
           cfg_txt=File.read(filename)

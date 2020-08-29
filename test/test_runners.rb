@@ -1,9 +1,9 @@
 # Copyright (c) 2007-2020 Vassilis Rizopoulos. All rights reserved.
 
-require 'test/unit'
 require 'ostruct'
-require 'patir/command'
+require 'test/unit'
 require 'mocha/setup'
+require 'patir/command'
 
 require_relative '../lib/rutema/core/objectmodel'
 require_relative '../lib/rutema/core/runner'
@@ -23,7 +23,7 @@ module TestRutema
       4.times{queue.pop}
       assert_equal("finished", queue.pop.text)
     end
-    
+
     def test_run_exceptions
       step=Rutema::Step.new("bad",Patir::RubyCommand.new("bad"){|cmd| raise "Bad command"})
       scenario=Rutema::Scenario.new([step])

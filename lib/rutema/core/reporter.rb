@@ -12,9 +12,11 @@ module Rutema
       def initialize configuration,dispatcher
         @configuration=configuration
       end
+
       def report specifications,states,errors
       end
     end
+
     class EventReporter
       def initialize configuration,dispatcher
         @configuration=configuration
@@ -49,11 +51,14 @@ module Rutema
         end
       end
     end
+
     #This reporter is always instantiated and collects all messages fired by the rutema engine
     #
     #The collections of errors and states are then at the end of a run fed to the block reporters
     class Collector<EventReporter
-      attr_reader :errors,:states
+      attr_reader :errors
+      attr_reader :states
+
       def initialize params,dispatcher
         super(params,dispatcher)
         @errors=[]
@@ -75,6 +80,7 @@ module Rutema
         end
       end
     end
+
     #A very simple event reporter that outputs to the console
     #
     #It has three settings: off, normal and verbose.
@@ -86,6 +92,7 @@ module Rutema
         super(configuration,dispatcher)
         @mode=configuration.reporters.fetch(self.class,{})["mode"]
       end
+
       def update message
         unless @mode=="off"
           case message
@@ -111,6 +118,7 @@ module Rutema
         super(configuration,dispatcher)
         @silent=configuration.reporters.fetch(self.class,{})["silent"]
       end
+
       def report specs,states,errors
         failures=[]
         states.each{|k,v| failures<<v.test if v.status==:error}
@@ -130,6 +138,7 @@ module Rutema
 
   module Utilities
     require "fileutils"
+
     def self.write_file filename,content
       FileUtils.mkdir_p(File.dirname(filename),:verbose=>false)
       File.open(filename, 'wb') {|f| f.write(content) }

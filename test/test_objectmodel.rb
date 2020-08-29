@@ -1,19 +1,24 @@
 # Copyright (c) 2007-2020 Vassilis Rizopoulos. All rights reserved.
 
 require 'test/unit'
+
 require_relative '../lib/rutema/core/objectmodel'
+
 module TestRutema
   class DummyCommand
     include Patir::Command
+
     def initialize
       @name="dummy"
       @output="output"
       @error="error"
     end
   end
+
   class Dummy
     include Rutema::SpecificationElement
   end
+
   class TestSpecificationElement<Test::Unit::TestCase
     def test_attribute
       obj=Dummy.new
@@ -30,7 +35,7 @@ module TestRutema
       assert(obj.text_bool?)
       assert_not_equal(true, obj.text_bool)
     end
-    
+
     def test_method_missing
       obj=Dummy.new
       assert_raise(NoMethodError) { obj.name }
@@ -39,6 +44,7 @@ module TestRutema
       assert_equal(obj.name, "name")
     end
   end
+
   class TestStep<Test::Unit::TestCase
     def test_new
       step=Rutema::Step.new("Step",DummyCommand.new())
@@ -55,6 +61,7 @@ module TestRutema
       assert(/0 - .*DummyCommand.*/=~step.to_s)
     end
   end
+
   class TestScenario<Test::Unit::TestCase
     def test_add_step
       scenario=Rutema::Scenario.new([])
@@ -66,6 +73,7 @@ module TestRutema
       assert_equal(2,scenario.steps.size)
     end
   end
+
   class TestSpecification<Test::Unit::TestCase
     def test_new
       spec=Rutema::Specification.new(:name=>"name",:title=>"title",:description=>"description")

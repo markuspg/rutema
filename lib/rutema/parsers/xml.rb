@@ -2,6 +2,7 @@
 
 require 'rexml/document'
 require 'patir/command'
+
 require_relative '../core/parser'
 require_relative '../core/objectmodel'
 require_relative '../elements/minimal'
@@ -16,6 +17,7 @@ module Rutema
     #The method will receive a Rutema::Step instance as a parameter which it should return
     class XML<SpecificationParser
       include Rutema::Elements::Minimal
+
       #:nodoc:
       ELEM_SPEC="specification"
       #:nodoc:
@@ -48,7 +50,9 @@ module Rutema
           raise Rutema::ParserError,$!.message
         end
       end
+
       private
+
       #Parses the XML specification of a testcase and creates the corresponding Rutema::Specification instance
       def parse_case xmltxt,filename
         spec=Rutema::Specification.new({})
@@ -72,12 +76,14 @@ module Rutema
         spec.filename=filename
         return spec
       end
+
       #Validates the XML file from our point of view.
       def validate_case xmldoc
         raise Rutema::ParserError,"missing #{ELEM_SPEC} element in #{xmldoc}" unless xmldoc.elements[ELEM_SPEC]
         raise Rutema::ParserError,"missing #{ELEM_DESC} element in #{xmldoc}" unless xmldoc.elements[ELEM_DESC]
         raise Rutema::ParserError,"missing #{ELEM_TITLE} element in #{xmldoc}" unless xmldoc.elements[ELEM_TITLE]
       end
+
       #Parses the 'scenario' XML element and returns the Rutema::Scenario instance
       def parse_scenario xmltxt
         scenario=Rutema::Scenario.new([])
@@ -104,6 +110,7 @@ module Rutema
         end
         return scenario
       end
+
       #Parses xml and returns the Rutema::Step instance
       def parse_step xmltxt
         xmldoc=REXML::Document.new( xmltxt )
@@ -118,6 +125,7 @@ module Rutema
         step.step_type=xmldoc.root.name
         return step
       end
+
       def add_attribute element,attr,value
         if boolean?(value)
          element.attribute(attr,eval(value))
@@ -125,10 +133,12 @@ module Rutema
           element.attribute(attr,value)
         end
       end
+
       def boolean? attribute_value
         return true if attribute_value=="true" || attribute_value=="false"
         return false
       end
+
       #handles <include_scenario> elements, adding the steps to the current scenario
       def include_scenario step
         raise Rutema::ParserError,"missing required attribute file in #{step}" unless step.has_file?
@@ -137,6 +147,7 @@ module Rutema
         include_content=File.read(step.file)
         return parse_scenario(include_content)
       end
+
       def extension_handling spec
         #change into the directory the spec is in to handle relative paths correctly
         Dir.chdir(File.dirname(File.expand_path(spec.filename))) do |path|

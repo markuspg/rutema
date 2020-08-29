@@ -1,6 +1,7 @@
 # Copyright (c) 2007-2020 Vassilis Rizopoulos. All rights reserved.
 
 require  'optparse'
+
 require_relative "core/configuration"
 require_relative "core/engine"
 
@@ -20,7 +21,9 @@ module Rutema
       @engine=Rutema::Engine.new(@configuration)
       application_flow
     end
+
     private
+
     def parse_command_line args
       args.options do |opt|
         opt.on("rutema v#{Version::STRING}")
@@ -47,6 +50,7 @@ module Rutema
         end
       end
     end
+
     def application_flow
       if @check
         #run just the suite setup test

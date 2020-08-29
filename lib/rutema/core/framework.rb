@@ -8,7 +8,10 @@ module Rutema
   #
   #This is the primary type passed to the event reporters
   class Message
-    attr_accessor :test,:text,:timestamp
+    attr_accessor :test
+    attr_accessor :text
+    attr_accessor :timestamp
+
     #Keys used:
     # test - the test id/name
     # text - the text of the message
@@ -27,6 +30,7 @@ module Rutema
       return msg
     end
   end
+
   #What it says on the tin.
   class ErrorMessage<Message
     def to_s
@@ -36,12 +40,19 @@ module Rutema
       return msg
     end
   end
+
   #The Runner continuously sends these when executing tests
   #
   #If there is an engine error (e.g. when parsing) you will get an ErrorMessage, if it is a test error
   #you will get a RunnerMessage with :error in the status.
   class RunnerMessage<Message
-    attr_accessor :duration,:status,:number,:out,:err,:is_special
+    attr_accessor :duration
+    attr_accessor :status
+    attr_accessor :number
+    attr_accessor :out
+    attr_accessor :err
+    attr_accessor :is_special
+
     def initialize params
       super(params)
       @duration=params.fetch("duration",0)
@@ -70,6 +81,7 @@ module Rutema
       return msg.chomp
     end
   end
+
   #While executing tests the state of each test is collected in an 
   #instance of ReportState and the collection is at the end passed to the available block reporters
   #
@@ -77,8 +89,12 @@ module Rutema
   #and accumulates the duration reported by all messages in it's collection.
   class ReportState
     attr_accessor :steps
-    attr_reader :test,:timestamp,:duration,:status,:is_special
-    
+    attr_reader :test
+    attr_reader :timestamp
+    attr_reader :duration
+    attr_reader :status
+    attr_reader :is_special
+
     def initialize message
       @test=message.test
       @timestamp=message.timestamp
@@ -100,6 +116,7 @@ module Rutema
     def error identifier,message
       @queue.push(ErrorMessage.new(:test=>identifier,:text=>message,:timestamp=>Time.now))
     end
+
     #Informational message during test runs
     def message message
       case message
@@ -113,15 +130,19 @@ module Rutema
       end
     end
   end
+
   #Generic error class for errors in the engine
   class RutemaError<RuntimeError
   end
+
   #Is raised when an error is found in a specification
   class ParserError<RutemaError
   end
+
   #Is raised on an unexpected error during execution
   class RunnerError<RutemaError
   end
+
   #Errors in reporters should use this class
   class ReportError<RutemaError
   end

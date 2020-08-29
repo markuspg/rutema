@@ -6,8 +6,11 @@ module Rutema
   module Runners    
     class Default
       include Rutema::Messaging
+
       attr_reader :context
-      attr_accessor :setup,:teardown
+      attr_accessor :setup
+      attr_accessor :teardown
+
       def initialize context,queue
         @setup=nil
         @teardown=nil
@@ -71,6 +74,7 @@ module Rutema
       end
 
       private
+
       def run_scenario name,scenario,meta,is_special
         executed_steps=[]
         status=:skipped
@@ -106,11 +110,13 @@ module Rutema
         end
         return executed_steps,status
       end
+
       def cache_cleanup step
         if step.has_cleanup? && step.cleanup.respond_to?(:run)
           @cleanup_blocks << step.cleanup
         end
       end
+
       def run_step step,meta
         if step.has_cmd? && step.cmd.respond_to?(:run)
           step.cmd.run(meta)

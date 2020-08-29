@@ -1,6 +1,7 @@
 # Copyright (c) 2007-2020 Vassilis Rizopoulos. All rights reserved.
 
 require 'json'
+
 require_relative "../core/reporter"
 
 module Rutema
@@ -18,6 +19,7 @@ module Rutema
         super(configuration,dispatcher)
         @filename=configuration.reporters.fetch(self.class,{}).fetch("filename",DEFAULT_FILENAME)
       end
+
       #We get all the data from a test run in here.
       def report specs,states,errors
         run_entry={}
