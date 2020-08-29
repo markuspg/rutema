@@ -1,8 +1,11 @@
 # Copyright (c) 2007-2020 Vassilis Rizopoulos. All rights reserved.
 
 module Rutema
-
-  STATUS_CODES=[:started,:skipped,:success,:warning,:error]
+  ##
+  # A list of possible states a Rutema::RunnerMessage can transport
+  #
+  # It is ordered by ascending priority.
+  STATUS_CODES = %i[uninitialized started skipped success warning error].freeze
 
   ##
   # Message is the base class of different message types for exchanging data
@@ -66,44 +69,82 @@ module Rutema
     end
   end
 
-  #The Runner continuously sends these when executing tests
+  ##
+  # Rutema::RunnerMessage instances are repeatedly created during test execution
   #
-  #If there is an engine error (e.g. when parsing) you will get an ErrorMessage, if it is a test error
-  #you will get a RunnerMessage with :error in the status.
-  class RunnerMessage<Message
+  # These messages are particular to a respective test and carry additional
+  # information compared to the base Rutema::Message
+  class RunnerMessage < Message
+    ##
+    # The backtrace of a conducted but failed step
+    attr_accessor :backtrace
+    ##
+    # The duration of a test step
     attr_accessor :duration
+    ##
+    # An error occurred during a step or a test
     attr_accessor :err
+    ##
+    # The represented step is a special one (i.e. a setup or teardown step)
     attr_accessor :is_special
+    ##
+    # The number of a test step
     attr_accessor :number
+    ##
+    # The output of a test step
     attr_accessor :out
+    ##
+    # The status of a respective test step or test itself
     attr_accessor :status
 
-    def initialize params
+    ##
+    # Initialize a new RunnerMessage from a Hash
+    #
+    # The following (additional to Message) keys of the hash are used:
+    # * 'backtrace' - A backtrace of a conducted but failed step (defaults to an
+    #   empty string)
+    # * 'duration' - An optional duration of a step (defaults to +0+)
+    # * 'err' - An optional error message (defaults to an empty string)
+    # * 'is_special' - If the respective step is a special one (i.e. setup or
+    #   teardown - defaults to +false+)
+    # * 'number' - The number of a step (defaults to +1+)
+    # * 'out' - An optional output of a step (defaults to an empty string)
+    # * 'status' - A status of a step or the respective test (defaults to +:uninitialized+)
+    def initialize(params)
       super(params)
-      @duration=params.fetch("duration",0)
-      @status=params.fetch("status",:none)
-      @number=params.fetch("number",1)
-      @out=params.fetch("out","")
-      @err=params.fetch("err","")
-      @backtrace=params.fetch("backtrace","")
-      @is_special=params.fetch("is_special","")
+
+      @backtrace = params.fetch('backtrace', '')
+      @duration = params.fetch('duration', 0)
+      @err = params.fetch('err', '')
+      @is_special = params.fetch('is_special', false)
+      @number = params.fetch('number', 1)
+      @out = params.fetch('out', '')
+      @status = params.fetch('status', :uninitialized)
     end
 
+    ##
+    # Return a string combining the stored step output, error string and
+    # backtrace
     def output
-      msg=""
-      msg<<"#{@out}\n" unless @out.empty?
-      msg<<@err unless @err.empty?
-      msg<<"\n" + (@backtrace.kind_of?(Array) ? @backtrace.join("\n") : @backtrace) unless @backtrace.empty?
-      return msg.chomp
+      msg = ''
+      msg << "Output: \"#{@out}\"\n" unless @out.empty?
+      msg << "Error: \"#{@err}\"\n" unless @err.empty?
+      msg << "Backtrace:\n=> " + (@backtrace.is_a?(Array) ? @backtrace.join("\n=> ") : @backtrace) unless @backtrace.empty?
+      msg.chomp
     end
 
+    ##
+    # Convert the message to a string representation
+    #
+    # The output of the #output method will be appended, if this returns a
+    # non-empty string
     def to_s
-      msg="#{@test}:"
-      msg<<" #{@timestamp.strftime("%H:%M:%S")} :"
-      msg<<"#{@text}." unless @text.empty?
-      outpt=output()
-      msg<<" Output" + (outpt.empty? ? "." : ":\n#{outpt}") # unless outpt.empty? || @status!=:error
-      return msg
+      msg = "#{@test}:"
+      msg << " #{@timestamp.strftime('%H:%M:%S')} :"
+      msg << "#{@text}." unless @text.empty?
+      outpt = output
+      msg << "\n#{outpt}" unless outpt.empty?
+      msg
     end
   end
 
