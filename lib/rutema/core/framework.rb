@@ -48,13 +48,21 @@ module Rutema
     end
   end
 
-  #What it says on the tin.
-  class ErrorMessage<Message
+  ##
+  # ErrorMessage is a class for simple error messages
+  #
+  # Compared to Message it does not contain any additional information. The
+  # only difference is that "Error - " is being prepended to its stringified
+  # representation.
+  #
+  # This class is mainly used to signal errors concerning the execution of
+  # Rutema. Test errors are signalled by RunnerMessage instances with the
+  # +status+ attribute set to +:error+.
+  class ErrorMessage < Message
+    ##
+    # Convert the message to a string representation
     def to_s
-      msg="ERROR - "
-      msg<<"#{@test} " unless @test.empty?
-      msg<<@text
-      return msg
+      'ERROR - ' + super
     end
   end
 
