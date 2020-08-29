@@ -16,32 +16,88 @@ module TestRutema
   end
 
   class Dummy
+  # Facilitate testing with a Rutema::SpecificationElement based class
     include Rutema::SpecificationElement
   end
 
-  class TestSpecificationElement<Test::Unit::TestCase
+  ##
+  # Test Rutema::SpecificationElement
+  class TestSpecificationElement < Test::Unit::TestCase
+    ##
+    # Test Rutema::SpecificationElement#attribute
     def test_attribute
-      obj=Dummy.new
+      obj = Dummy.new
+
+      # Attribute with a String value and Symbol setting
       assert_raise(NoMethodError) { obj.name }
-      obj.attribute(:name,"name")
+      assert_raise(NoMethodError) { obj.name? }
+      # The assignment operator cannot be tested since it creates the methods
+      assert_false(obj.has_name?)
+      obj.attribute(:name, 'name')
       assert(obj.has_name?)
-      assert_equal(obj.name, "name")
+      assert(obj.name?)
+      assert_equal(obj.name, 'name')
+      obj.name = 'Another name'
+      assert_equal('Another name', obj.name)
+
+      # Attribute with a boolean value and String setting
       assert_raise(NoMethodError) { obj.bool }
-      obj.attribute(:bool,true)
+      assert_raise(NoMethodError) { obj.bool? }
+      # The assignment operator cannot be tested since it creates the methods
+      assert_false(obj.has_bool?)
+      obj.attribute('bool', false)
+      assert(obj.has_bool?)
       assert(obj.bool?)
+      assert_equal(false, obj.bool)
+      obj.bool = true
       assert_equal(true, obj.bool)
+
+      # Attribute with a textual representation of a boolean value
       assert_raise(NoMethodError) { obj.text_bool }
-      obj.attribute(:text_bool,"true")
+      assert_raise(NoMethodError) { obj.text_bool? }
+      # The assignment operator cannot be tested since it creates the methods
+      assert_false(obj.has_text_bool?)
+      obj.attribute(:text_bool, 'true')
+      assert(obj.has_text_bool?)
       assert(obj.text_bool?)
-      assert_not_equal(true, obj.text_bool)
+      assert_equal('true', obj.text_bool)
+      obj.text_bool = 'false'
+      assert_equal('false', obj.text_bool)
     end
 
+    ##
+    # Test Rutema::SpecificationElement#method_missing
     def test_method_missing
-      obj=Dummy.new
+      obj = Dummy.new
       assert_raise(NoMethodError) { obj.name }
-      obj.name="name"
+      assert_raise(NoMethodError) { obj.name? }
+      # The assignment operator cannot be tested since it creates the methods
+      assert_false(obj.has_name?)
+      obj.name = 'Some name'
+      assert_equal(obj.name, 'Some name')
+      assert(obj.name?)
       assert(obj.has_name?)
-      assert_equal(obj.name, "name")
+    end
+
+    ##
+    # Test Rutema::SpecificationElement#respond_to?
+    def test_respond_to
+      obj = Dummy.new
+      [false, true].each do |include_all|
+        assert_false(obj.respond_to?(:has_a_name, include_all))
+        assert_false(obj.respond_to?(:a_name, include_all))
+        assert_false(obj.respond_to?(:a_name=, include_all))
+        assert_false(obj.respond_to?(:a_name?, include_all))
+      end
+
+      obj.attribute(:a_name, 'Some name')
+
+      [false, true].each do |include_all|
+        assert(obj.respond_to?(:has_a_name, include_all))
+        assert(obj.respond_to?(:a_name, include_all))
+        assert(obj.respond_to?(:a_name=, include_all))
+        assert(obj.respond_to?(:a_name?, include_all))
+      end
     end
   end
 

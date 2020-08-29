@@ -3,48 +3,80 @@
 require 'patir/command'
 
 module Rutema
-  #This module adds functionality that allows us to 
-  #arbitrarily add attributes to a class and then have 
-  #the accessor methods for these attributes appear automagically.
-  #
-  #It will also add a has_attribute? method to query if _attribute_ is part of the object or not.
+  ##
+  # This module adds functionality that allows to arbitrarily add attributes to
+  # a class and then have the accessor methods for these attributes
+  # automagically appear.
   module SpecificationElement
-    #adds an attribute to the class with the given __value__. __symbol__ can be a Symbol or a String, 
-    #the rest are silently ignored
-    def attribute symbol,value
-      @attributes||=Hash.new
+    ##
+    # Add an attribute with the given +value+ to the class. +symbol+ must be a
+    # Symbol or a String, otherwise a RutemaError is raised.
+    def attribute(symbol, value)
+      @attributes ||= {}
+
       case symbol
-        when String then @attributes[:"#{symbol}"]=value
-        when Symbol then @attributes[symbol]=value
+      # Assign value if symbol is of type String or Symbol ...
+      when String then @attributes[:"#{symbol}"] = value
+      when Symbol then @attributes[symbol] = value
+      # ... or otherwise raise a RutemaError
+      else raise RutemaError, \
+                 "Symbol of invalid type #{symbol.class} encountered"
       end
     end
 
-    #allows us to call object.attribute, object.attribute=, object.attribute? and object.has_attribute?
+    ##
+    # Allows to call +object.attribute+, +object.attribute=+,
+    # +object.attribute?+ and +object.has_attribute?+
     #
-    #object.attribute and object.attribute? will throw NoMethodError if no attribute is set.
+    # +object.attribute+ and +object.attribute?+ will throw +NoMethodError+ if
+    # attribute is not set.
     #
-    #object.attribute= will set the attribute to the right operand and
-    #object.has_attribute? returns false or true according to the existence of the attribute.
-    def method_missing symbol,*args
-      @attributes||=Hash.new
-      key=symbol.id2name.chomp('?').chomp('=').sub(/^has_/,"")
-      @attributes[:"#{key}"]=args[0] if key+"="==symbol.id2name
-      if @attributes.has_key?(:"#{key}")
-          return true if "has_"+key+"?"==symbol.id2name
-          return @attributes[:"#{key}"]
-      else
-        return false if "has_"+key+"?"==symbol.id2name
-        super(symbol,*args)
-      end
-    end
+    # +object.attribute=+ will set the value of the attribute to the right
+    # operand.
+    def method_missing(symbol, *args)
+      @attributes ||= {}
 
-    def respond_to? symbol,include_all
-      @attributes||=Hash.new
-      key=symbol.id2name.chomp('?').chomp('=').sub(/^has_/,"")
-      if @attributes.has_key?(:"#{key}")
+      # Remove a prefixed "_has" or suffixed '=' or '?' to get pure "name"
+      key = symbol.id2name.chomp('?').chomp('=').sub(/^has_/, '')
+
+      # Handle assignment
+      @attributes[:"#{key}"] = args[0] if key + '=' == symbol.id2name
+
+      # If the pure "name" exists as key in the interally stored attributes ...
+      if @attributes.key?(:"#{key}")
+        # ... return true if its existence as attribute was queried ...
+        if ('has_' + key + '?' == symbol.id2name) \
+            || (key + '?' == symbol.id2name)
           return true
+        end
+
+        # ... or return the value otherwise
+        @attributes[:"#{key}"]
       else
-        super(symbol,include_all)
+        # Return false if the existence was queried and the key does not exist
+        return false if 'has_' + key + '?' == symbol.id2name
+
+        # If all previous cases didn't match forward to parent which should
+        # raise
+        super(symbol, *args)
+      end
+    end
+
+    ##
+    # Refer to (Ruby-Doc.org)[https://ruby-doc.org/core-2.7.1/Object.html#method-i-respond_to-3F]
+    def respond_to?(symbol, include_all = false)
+      @attributes ||= {}
+
+      # Remove a prefixed "_has" or suffixed '=' or '?' to get pure "name"
+      key = symbol.id2name.chomp('?').chomp('=').sub(/^has_/, '')
+
+      # If pure "name" exists in internally stored attributes ...
+      if @attributes.key?(:"#{key}")
+        # ... return true ...
+        true
+      else
+        # ... and otherwise ask parent
+        super(symbol, include_all)
       end
     end
   end
