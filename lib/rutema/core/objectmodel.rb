@@ -178,33 +178,9 @@ module Rutema
       @attributes[:step_type]="step"
     end
 
-    def name
-      return name_with_parameters
-    end
-
-    def output
-      return "" unless @attributes[:cmd]
-      return @attributes[:cmd].output
-    end
-
-    def error
-      return "no command associated" unless @attributes[:cmd]
-      return @attributes[:cmd].error
-    end
-
     def backtrace
       return "no backtrace associated" unless @attributes[:cmd]
       return @attributes[:cmd].backtrace
-    end
-
-    def skip_on_error?
-      return false unless @attributes[:skip_on_error]
-      return @attributes[:skip_on_error]
-    end
-
-    def ignore?
-      return false unless @attributes[:ignore]
-      return @attributes[:ignore]
     end
 
     def continue?
@@ -212,9 +188,47 @@ module Rutema
       return @attributes[:continue]
     end
 
+    def error
+      return "no command associated" unless @attributes[:cmd]
+      return @attributes[:cmd].error
+    end
+
     def exec_time
       return 0 unless @attributes[:cmd]
       return @attributes[:cmd].exec_time
+    end
+
+    def ignore?
+      return false unless @attributes[:ignore]
+      return @attributes[:ignore]
+    end
+
+    def name
+      return name_with_parameters
+    end
+
+    def name_with_parameters
+      param=" - #{self.cmd.to_s}" if self.has_cmd?
+      return "#{@attributes[:step_type]}#{param}"
+    end
+
+    def output
+      return "" unless @attributes[:cmd]
+      return @attributes[:cmd].output
+    end
+
+    def reset
+      @attributes[:cmd].reset if @attributes[:cmd]
+    end
+
+    def run context=nil
+      return not_executed unless @attributes[:cmd]
+      return @attributes[:cmd].run(context)
+    end
+
+    def skip_on_error?
+      return false unless @attributes[:skip_on_error]
+      return @attributes[:skip_on_error]
     end
 
     def status
@@ -224,20 +238,6 @@ module Rutema
 
     def status= st
       @attributes[:cmd].status=st if @attributes[:cmd]
-    end
-
-    def run context=nil
-      return not_executed unless @attributes[:cmd]
-      return @attributes[:cmd].run(context)
-    end
-
-    def reset
-      @attributes[:cmd].reset if @attributes[:cmd]
-    end
-
-    def name_with_parameters
-      param=" - #{self.cmd.to_s}" if self.has_cmd?
-      return "#{@attributes[:step_type]}#{param}"
     end
 
     def to_s#:nodoc:

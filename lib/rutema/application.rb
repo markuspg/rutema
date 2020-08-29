@@ -24,6 +24,20 @@ module Rutema
 
     private
 
+    def application_flow
+      if @check
+        #run just the suite setup test
+        if @configuration.suite_setup
+          exit @engine.run(@configuration.suite_setup)
+        else
+          raise Rutema::RutemaError,"There is no suite setup test defined in the configuration."
+        end
+      else
+        #run everything
+        exit @engine.run(@test_identifier)
+      end
+    end
+
     def parse_command_line args
       args.options do |opt|
         opt.on("rutema v#{Version::STRING}")
@@ -48,20 +62,6 @@ module Rutema
         if !args.empty?
           @test_identifier=args.shift
         end
-      end
-    end
-
-    def application_flow
-      if @check
-        #run just the suite setup test
-        if @configuration.suite_setup
-          exit @engine.run(@configuration.suite_setup)
-        else
-          raise Rutema::RutemaError,"There is no suite setup test defined in the configuration."
-        end
-      else
-        #run everything
-        exit @engine.run(@test_identifier)
       end
     end
   end

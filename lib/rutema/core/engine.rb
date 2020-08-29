@@ -33,13 +33,33 @@ module Rutema
       @configuration=configuration
     end
 
+    #Parse a single test spec or all the specs listed in the configuration
+    def parse test_identifier=nil
+      specs=[]
+      #so, while we are parsing, we have a list of tests
+      #we're either parsing all of the tests, or just one
+      #make sure the one test is on the list
+      if test_identifier
+        if is_spec_included?(test_identifier)
+          specs<<parse_specification(File.expand_path(test_identifier))
+        else
+          error(File.expand_path(test_identifier),"does not exist in the configuration")
+        end
+      else
+        specs=parse_specifications(@configuration.tests)
+      end
+      specs.compact!
+      suite_setup,suite_teardown,setup,teardown=parse_specials(@configuration)
+      return [suite_setup,suite_teardown,setup,teardown,specs]
+    end
+
     #Parse, run, report
     def run test_identifier=nil
       @dispatcher.run!
       #start
       message("start")
       suite_setup,suite_teardown,setup,teardown,tests=*parse(test_identifier)
-      if tests.empty?  
+      if tests.empty?
         @dispatcher.exit
         raise RutemaError,"No tests to run!"
       else
@@ -52,41 +72,27 @@ module Rutema
       @dispatcher.report(tests)
     end
 
-    #Parse a single test spec or all the specs listed in the configuration
-    def parse test_identifier=nil
-      specs=[]
-      #so, while we are parsing, we have a list of tests
-      #we're either parsing all of the tests, or just one
-      #make sure the one test is on the list
-      if test_identifier
-        if is_spec_included?(test_identifier)
-          specs<<parse_specification(File.expand_path(test_identifier))
-        else
-          error(File.expand_path(test_identifier),"does not exist in the configuration")  
-        end
-      else
-        specs=parse_specifications(@configuration.tests)
-      end
-      specs.compact!
-      suite_setup,suite_teardown,setup,teardown=parse_specials(@configuration)
-      return [suite_setup,suite_teardown,setup,teardown,specs]
-    end
-
     private
 
-    def parse_specifications tests
-      tests.map do |t| 
-        parse_specification(t)
-      end.compact
+    def instantiate_class definition,configuration
+      if definition[:class]
+        klass=definition[:class]
+        return klass.new(configuration)
+      end
+      return nil
     end
 
-    def parse_specification spec_identifier
-      begin
-        @parser.parse_specification(spec_identifier)
-      rescue Rutema::ParserError
-        error(spec_identifier,$!.message)
-        raise Rutema::ParserError, "In #{spec_identifier}: #{$!.message}" 
-      end
+    def is_spec_included? test_identifier
+      full_path=File.expand_path(test_identifier)
+      return @configuration.tests.include?(full_path) || is_special?(test_identifier)
+    end
+
+    def is_special? test_identifier
+      full_path=File.expand_path(test_identifier)
+      return full_path==@configuration.suite_setup ||
+      full_path==@configuration.suite_teardown ||
+      full_path==@configuration.setup ||
+      full_path==@configuration.teardown
     end
 
     def parse_specials configuration
@@ -107,6 +113,21 @@ module Rutema
         teardown=parse_specification(configuration.teardown)
       end
       return suite_setup,suite_teardown,setup,teardown
+    end
+
+    def parse_specification spec_identifier
+      begin
+        @parser.parse_specification(spec_identifier)
+      rescue Rutema::ParserError
+        error(spec_identifier,$!.message)
+        raise Rutema::ParserError, "In #{spec_identifier}: #{$!.message}"
+      end
+    end
+
+    def parse_specifications tests
+      tests.map do |t|
+        parse_specification(t)
+      end.compact
     end
 
     def run_scenarios specs,suite_setup,suite_teardown,setup,teardown
@@ -140,27 +161,6 @@ module Rutema
       end
       return status
     end
-
-    def instantiate_class definition,configuration
-      if definition[:class]
-        klass=definition[:class]
-        return klass.new(configuration)
-      end
-      return nil
-    end
-
-    def is_spec_included? test_identifier
-      full_path=File.expand_path(test_identifier)
-      return @configuration.tests.include?(full_path) || is_special?(test_identifier)
-    end
-
-    def is_special? test_identifier
-      full_path=File.expand_path(test_identifier)
-      return full_path==@configuration.suite_setup ||
-      full_path==@configuration.suite_teardown ||
-      full_path==@configuration.setup ||
-      full_path==@configuration.teardown  
-    end
   end
 
   #The Rutema::Dispatcher functions as a demultiplexer between Rutema::Engine and the various reporters.
@@ -187,23 +187,6 @@ module Rutema
       @configuration=configuration
     end
 
-    #Call this to establish a queue with the given identifier
-    def subscribe identifier
-      @queues[identifier]=Queue.new
-      return @queues[identifier]
-    end
-    
-    def run!
-      puts "Running #{@streaming_reporters.size} streaming reporters" if $DEBUG
-      @streaming_reporters.each {|r| r.run!}
-      @thread=Thread.new do
-        while true do
-          dispatch()
-          sleep INTERVAL
-        end
-      end
-    end
-
     def report specs
       @block_reporters.each do |r|
         r.report(specs,@collector.states,@collector.errors)
@@ -219,7 +202,31 @@ module Rutema
       end
     end
 
+    def run!
+      puts "Running #{@streaming_reporters.size} streaming reporters" if $DEBUG
+      @streaming_reporters.each {|r| r.run!}
+      @thread=Thread.new do
+        while true do
+          dispatch()
+          sleep INTERVAL
+        end
+      end
+    end
+
+    #Call this to establish a queue with the given identifier
+    def subscribe identifier
+      @queues[identifier]=Queue.new
+      return @queues[identifier]
+    end
+
     private
+
+    def dispatch
+      if @queue.size>0
+        data=@queue.pop
+        @queues.each{ |i,q| q.push(data) } if data
+      end
+    end
 
     def flush
       puts "Flushing queues" if $DEBUG
@@ -237,13 +244,6 @@ module Rutema
         return klass.new(configuration,self)
       end
       return nil
-    end
-
-    def dispatch
-      if @queue.size>0
-        data=@queue.pop
-        @queues.each{ |i,q| q.push(data) } if data
-      end
     end
   end
 end

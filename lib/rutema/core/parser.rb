@@ -16,14 +16,14 @@ module Rutema
         validate_configuration
       end
 
-      #parses a specification
-      def parse_specification param
-        raise ParserError,"not implemented. You should derive a parser implementation from SpecificationParser!"
-      end
-
       #parses the setup script. By default calls parse_specification
       def parse_setup param
         parse_specification(param)
+      end
+
+      #parses a specification
+      def parse_specification param
+        raise ParserError,"not implemented. You should derive a parser implementation from SpecificationParser!"
       end
 
       #parses the teardown script. By default calls parse_specification

@@ -75,6 +75,12 @@ module Rutema
 
       private
 
+      def cache_cleanup step
+        if step.has_cleanup? && step.cleanup.respond_to?(:run)
+          @cleanup_blocks << step.cleanup
+        end
+      end
+
       def run_scenario name,scenario,meta,is_special
         executed_steps=[]
         status=:skipped
@@ -109,12 +115,6 @@ module Rutema
           status=:error
         end
         return executed_steps,status
-      end
-
-      def cache_cleanup step
-        if step.has_cleanup? && step.cleanup.respond_to?(:run)
-          @cleanup_blocks << step.cleanup
-        end
       end
 
       def run_step step,meta

@@ -47,11 +47,11 @@ module Rutema
   #you will get a RunnerMessage with :error in the status.
   class RunnerMessage<Message
     attr_accessor :duration
-    attr_accessor :status
-    attr_accessor :number
-    attr_accessor :out
     attr_accessor :err
     attr_accessor :is_special
+    attr_accessor :number
+    attr_accessor :out
+    attr_accessor :status
 
     def initialize params
       super(params)
@@ -64,6 +64,14 @@ module Rutema
       @is_special=params.fetch("is_special","")
     end
 
+    def output
+      msg=""
+      msg<<"#{@out}\n" unless @out.empty?
+      msg<<@err unless @err.empty?
+      msg<<"\n" + (@backtrace.kind_of?(Array) ? @backtrace.join("\n") : @backtrace) unless @backtrace.empty?
+      return msg.chomp
+    end
+
     def to_s
       msg="#{@test}:"
       msg<<" #{@timestamp.strftime("%H:%M:%S")} :"
@@ -71,14 +79,6 @@ module Rutema
       outpt=output()
       msg<<" Output" + (outpt.empty? ? "." : ":\n#{outpt}") # unless outpt.empty? || @status!=:error
       return msg
-    end
-
-    def output
-      msg=""
-      msg<<"#{@out}\n" unless @out.empty?
-      msg<<@err unless @err.empty?
-      msg<<"\n" + (@backtrace.kind_of?(Array) ? @backtrace.join("\n") : @backtrace) unless @backtrace.empty? 
-      return msg.chomp
     end
   end
 
@@ -89,11 +89,12 @@ module Rutema
   #and accumulates the duration reported by all messages in it's collection.
   class ReportState
     attr_accessor :steps
+
+    attr_reader :duration
+    attr_reader :is_special
+    attr_reader :status
     attr_reader :test
     attr_reader :timestamp
-    attr_reader :duration
-    attr_reader :status
-    attr_reader :is_special
 
     def initialize message
       @test=message.test

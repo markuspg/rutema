@@ -23,6 +23,17 @@ module Rutema
         @queue=dispatcher.subscribe(self.object_id)
       end
 
+      def exit
+        puts "Exiting #{self.class}" if $DEBUG
+        if @thread
+          puts "Reporter died with #{@queue.size} messages in the queue" unless @thread.alive?
+          while @queue.size>0 && @thread.alive? do
+            sleep 0.1
+          end
+          Thread.kill(@thread)
+        end
+      end
+
       def run!
         @thread=Thread.new do
           while true do
@@ -38,17 +49,6 @@ module Rutema
       end
 
       def update data
-      end
-
-      def exit
-        puts "Exiting #{self.class}" if $DEBUG
-        if @thread
-          puts "Reporter died with #{@queue.size} messages in the queue" unless @thread.alive?
-          while @queue.size>0 && @thread.alive? do
-            sleep 0.1
-          end
-          Thread.kill(@thread)
-        end
       end
     end
 

@@ -53,6 +53,47 @@ module Rutema
 
       private
 
+      def add_attribute element,attr,value
+        if boolean?(value)
+         element.attribute(attr,eval(value))
+        else
+          element.attribute(attr,value)
+        end
+      end
+
+      def boolean? attribute_value
+        return true if attribute_value=="true" || attribute_value=="false"
+        return false
+      end
+
+      def extension_handling spec
+        #change into the directory the spec is in to handle relative paths correctly
+        Dir.chdir(File.dirname(File.expand_path(spec.filename))) do |path|
+          spec.scenario.steps.each do |step|
+            #do we have a method to handle the element?
+            if respond_to?(:"element_#{step.step_type}")
+              begin
+                self.send(:"element_#{step.step_type}",step)
+              rescue
+                raise ParserError, ($!.message + "\n" + $@.join("\n"))
+              end#begin
+            elsif @configuration.parser["strict_mode"]
+              raise ParserError,"No command element associated with #{step.step_type}. Missing element_#{step.step_type}"
+            end
+          end#each
+        end#chdir
+        return spec
+      end
+
+      #handles <include_scenario> elements, adding the steps to the current scenario
+      def include_scenario step
+        raise Rutema::ParserError,"missing required attribute file in #{step}" unless step.has_file?
+        raise Rutema::ParserError,"Cannot find #{File.expand_path(step.file)}" unless File.exist?(File.expand_path(step.file))
+        step.file=File.expand_path(step.file)
+        include_content=File.read(step.file)
+        return parse_scenario(include_content)
+      end
+
       #Parses the XML specification of a testcase and creates the corresponding Rutema::Specification instance
       def parse_case xmltxt,filename
         spec=Rutema::Specification.new({})
@@ -75,13 +116,6 @@ module Rutema
         end
         spec.filename=filename
         return spec
-      end
-
-      #Validates the XML file from our point of view.
-      def validate_case xmldoc
-        raise Rutema::ParserError,"missing #{ELEM_SPEC} element in #{xmldoc}" unless xmldoc.elements[ELEM_SPEC]
-        raise Rutema::ParserError,"missing #{ELEM_DESC} element in #{xmldoc}" unless xmldoc.elements[ELEM_DESC]
-        raise Rutema::ParserError,"missing #{ELEM_TITLE} element in #{xmldoc}" unless xmldoc.elements[ELEM_TITLE]
       end
 
       #Parses the 'scenario' XML element and returns the Rutema::Scenario instance
@@ -126,45 +160,11 @@ module Rutema
         return step
       end
 
-      def add_attribute element,attr,value
-        if boolean?(value)
-         element.attribute(attr,eval(value))
-        else
-          element.attribute(attr,value)
-        end
-      end
-
-      def boolean? attribute_value
-        return true if attribute_value=="true" || attribute_value=="false"
-        return false
-      end
-
-      #handles <include_scenario> elements, adding the steps to the current scenario
-      def include_scenario step
-        raise Rutema::ParserError,"missing required attribute file in #{step}" unless step.has_file?
-        raise Rutema::ParserError,"Cannot find #{File.expand_path(step.file)}" unless File.exist?(File.expand_path(step.file))
-        step.file=File.expand_path(step.file)
-        include_content=File.read(step.file)
-        return parse_scenario(include_content)
-      end
-
-      def extension_handling spec
-        #change into the directory the spec is in to handle relative paths correctly
-        Dir.chdir(File.dirname(File.expand_path(spec.filename))) do |path|
-          spec.scenario.steps.each do |step|
-            #do we have a method to handle the element?
-            if respond_to?(:"element_#{step.step_type}")
-              begin
-                self.send(:"element_#{step.step_type}",step)
-              rescue
-                raise ParserError, ($!.message + "\n" + $@.join("\n"))
-              end#begin
-            elsif @configuration.parser["strict_mode"]
-              raise ParserError,"No command element associated with #{step.step_type}. Missing element_#{step.step_type}"
-            end
-          end#each
-        end#chdir
-        return spec
+      #Validates the XML file from our point of view.
+      def validate_case xmldoc
+        raise Rutema::ParserError,"missing #{ELEM_SPEC} element in #{xmldoc}" unless xmldoc.elements[ELEM_SPEC]
+        raise Rutema::ParserError,"missing #{ELEM_DESC} element in #{xmldoc}" unless xmldoc.elements[ELEM_DESC]
+        raise Rutema::ParserError,"missing #{ELEM_TITLE} element in #{xmldoc}" unless xmldoc.elements[ELEM_TITLE]
       end
     end
   end

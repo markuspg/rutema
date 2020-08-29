@@ -12,6 +12,16 @@ module Rutema
     # command
     # prompt
     module Minimal
+      #command executes a shell command
+      # <command cmd="useful_command.exe with parameters", working_directory="some/directory"/>
+      def element_command step
+        raise ParserError,"missing required attribute cmd in #{step}" unless step.has_cmd?
+        wd=Dir.pwd
+        wd=step.working_directory if step.has_working_directory?
+        step.cmd=Patir::ShellCommand.new(:cmd=>step.cmd,:working_directory=>File.expand_path(wd))
+        return step
+      end
+
       #echo prints a message on the screen:
       # <echo text="A meaningful message"/>
       # <echo>A meaningful message</echo>
@@ -36,16 +46,6 @@ module Rutema
           end#if
         end#do rubycommand
         return step
-      end
-
-      #command executes a shell command
-      # <command cmd="useful_command.exe with parameters", working_directory="some/directory"/>
-      def element_command step
-        raise ParserError,"missing required attribute cmd in #{step}" unless step.has_cmd?
-        wd=Dir.pwd
-        wd=step.working_directory if step.has_working_directory?
-        step.cmd=Patir::ShellCommand.new(:cmd=>step.cmd,:working_directory=>File.expand_path(wd))
-        return step  
       end
     end
   end

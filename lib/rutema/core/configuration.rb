@@ -17,36 +17,46 @@ require_relative 'reporter'
     # configuration.parser={:class=>Rutema::MinimalXMLParser}
     # configuration.tests=FileList['all/of/the/tests/**/*.*']
     module ConfigurationDirectives
-      attr_reader :parser
-      attr_reader :runner
-      attr_reader :tools
-      attr_reader :paths
-      attr_reader :tests
-      attr_reader :context
-      attr_reader :setup
-      attr_reader :teardown
-      attr_reader :suite_setup
-      attr_reader :suite_teardown
       attr_accessor :reporters
 
-      #Adds a hash of values to the tools hash of the configuration
+      attr_reader :context
+      attr_reader :parser
+      attr_reader :paths
+      attr_reader :runner
+      attr_reader :setup
+      attr_reader :suite_setup
+      attr_reader :suite_teardown
+      attr_reader :teardown
+      attr_reader :tests
+      attr_reader :tools
+
+      #Hash values for passing data to the system. It's supposed to be used in the reporters and contain
+      #values such as version numbers, tester names etc.
+      def context= definition
+        @context||=Hash.new
+        raise ConfigurationException,"Only accepting hash values as context_data" unless definition.kind_of?(Hash)
+        @context.merge!(definition)
+      end
+
+      def init
+        @reporters={}
+        @context={}
+        @tests=[]
+        @tools=OpenStruct.new
+        @paths=OpenStruct.new
+      end
+
+      #A hash defining the parser to use.
       #
-      #This hash is then accessible in the parser and reporters as a property of the configuration instance
+      #The hash is passed as is to the parser constructor and each parser should define the necessary configuration keys.
       #
-      #Required keys:
-      # :name - the name to use for accessing the path in code
+      #The only required key from the configurator's point fo view is :class which should be set to the fully qualified name of the class to use.
+      #
       #Example:
-      # configure do |cfg|
-      #  cfg.tool={:name=>"nunit",:path=>"/bin/nunit",:configuration=>{:important=>"info"}}
-      # end
-      #
-      #The path to nunit can then be accessed in the parser as
-      # @configuration.tools.nunit[:path]
-      #
-      #This way you can pass configuration information for the tools you use
-      def tool= definition
-        raise ConfigurationException,"required key :name is missing from #{definition}" unless definition[:name]
-        @tools[definition[:name]]=definition
+      # cfg.parser={:class=>Rutema::MinimalXMLParser}
+      def parser= definition
+        raise ConfigurationException,"required key :class is missing from #{definition}" unless definition[:class]
+        @parser=definition
       end
 
       #Adds a path to the paths hash of the configuration
@@ -62,18 +72,34 @@ require_relative 'reporter'
         @paths[definition[:name]]=definition[:path]
       end
 
+      #Adds a reporter to the configuration.
+      #
+      #As with the parser, the only required configuration key is :class and the definition hash is passed to the class' constructor.
+      #
+      #Unlike the parser, you can define multiple reporters.
+      def reporter= definition
+        raise ConfigurationException,"required key :class is missing from #{definition}" unless definition[:class]
+        @reporters[definition[:class]]=definition
+      end
+
+      #A hash defining the runner to use.
+      #
+      #The hash is passed as is to the runner constructor and each runner should define the necessary configuration keys.
+      #
+      #The only required key from the configurator's point fo view is :class which should be set to the fully qualified name of the class to use.
+      #
+      #Example:
+      # cfg.runner={:class=>Rutema::Runners::NoOp}
+      def runner= definition
+        raise ConfigurationException,"required key :class is missing from #{definition}" unless definition[:class]
+        @runner=definition
+      end
+
       #Path to the setup specification. (optional)
       #
       #The setup test runs before every test.
       def setup= path
         @setup=check_path(path)
-      end
-
-      #Path to the teardown specification. (optional)
-      #
-      #The teardown test runs after every test.    
-      def teardown= path
-        @teardown=check_path(path)
       end
 
       #Path to the suite setup specification. (optional)
@@ -96,12 +122,11 @@ require_relative 'reporter'
         @suite_teardown=check_path(path)
       end
 
-      #Hash values for passing data to the system. It's supposed to be used in the reporters and contain 
-      #values such as version numbers, tester names etc.
-      def context= definition
-        @context||=Hash.new
-        raise ConfigurationException,"Only accepting hash values as context_data" unless definition.kind_of?(Hash)
-        @context.merge!(definition)
+      #Path to the teardown specification. (optional)
+      #
+      #The teardown test runs after every test.
+      def teardown= path
+        @teardown=check_path(path)
       end
 
       #Adds the specification identifiers available to this instance of Rutema
@@ -112,52 +137,25 @@ require_relative 'reporter'
         @tests+=array_of_identifiers.map{|f| full_path(f)}
       end
 
-      #A hash defining the parser to use.
+      #Adds a hash of values to the tools hash of the configuration
       #
-      #The hash is passed as is to the parser constructor and each parser should define the necessary configuration keys.
+      #This hash is then accessible in the parser and reporters as a property of the configuration instance
       #
-      #The only required key from the configurator's point fo view is :class which should be set to the fully qualified name of the class to use.
-      #
+      #Required keys:
+      # :name - the name to use for accessing the path in code
       #Example:
-      # cfg.parser={:class=>Rutema::MinimalXMLParser}
-      def parser= definition
-        raise ConfigurationException,"required key :class is missing from #{definition}" unless definition[:class]
-        @parser=definition
-      end
-
-      #A hash defining the runner to use.
+      # configure do |cfg|
+      #  cfg.tool={:name=>"nunit",:path=>"/bin/nunit",:configuration=>{:important=>"info"}}
+      # end
       #
-      #The hash is passed as is to the runner constructor and each runner should define the necessary configuration keys.
+      #The path to nunit can then be accessed in the parser as
+      # @configuration.tools.nunit[:path]
       #
-      #The only required key from the configurator's point fo view is :class which should be set to the fully qualified name of the class to use.
-      #
-      #Example:
-      # cfg.runner={:class=>Rutema::Runners::NoOp}
-      def runner= definition
-        raise ConfigurationException,"required key :class is missing from #{definition}" unless definition[:class]
-        @runner=definition
+      #This way you can pass configuration information for the tools you use
+      def tool= definition
+        raise ConfigurationException,"required key :name is missing from #{definition}" unless definition[:name]
+        @tools[definition[:name]]=definition
       end
-
-      #Adds a reporter to the configuration.
-      #
-      #As with the parser, the only required configuration key is :class and the definition hash is passed to the class' constructor.
-      # 
-      #Unlike the parser, you can define multiple reporters.
-      def reporter= definition
-        raise ConfigurationException,"required key :class is missing from #{definition}" unless definition[:class]
-        @reporters[definition[:class]]=definition
-      end
-
-      #:stopdoc
-      def init
-        @reporters={}
-        @context={}
-        @tests=[]
-        @tools=OpenStruct.new
-        @paths=OpenStruct.new
-      end
-
-      #:startdoc
 
       private
 
