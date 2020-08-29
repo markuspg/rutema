@@ -263,20 +263,4 @@ module Rutema
       @queue.push(hm) if hm.is_a?(Message)
     end
   end
-
-  #Generic error class for errors in the engine
-  class RutemaError<RuntimeError
-  end
-
-  #Is raised when an error is found in a specification
-  class ParserError<RutemaError
-  end
-
-  #Is raised on an unexpected error during execution
-  class RunnerError<RutemaError
-  end
-
-  #Errors in reporters should use this class
-  class ReportError<RutemaError
-  end
 end

@@ -179,9 +179,6 @@ require_relative 'reporter'
       end
     end
 
-    class ConfigurationException<RuntimeError
-    end
-
     #The object we pass around after we load the configuration from file
     #
     #All relevant methods are in Rutema::ConfigurationDirectives

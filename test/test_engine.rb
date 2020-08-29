@@ -6,6 +6,7 @@ require 'mocha/setup'
 
 require_relative '../lib/rutema/core/engine'
 require_relative '../lib/rutema/core/objectmodel'
+require_relative '../lib/rutema/core/rutema_errors'
 require_relative '../lib/rutema/parsers/xml'
 
 module TestRutema
