@@ -1,3 +1,5 @@
+# Copyright (c) 2007-2020 Vassilis Rizopoulos. All rights reserved.
+
 module Rutema
   #This module defines the version numbers for the library
   module Version

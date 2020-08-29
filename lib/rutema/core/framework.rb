@@ -1,3 +1,5 @@
+# Copyright (c) 2007-2020 Vassilis Rizopoulos. All rights reserved.
+
 module Rutema
 
   STATUS_CODES=[:started,:skipped,:success,:warning,:error]

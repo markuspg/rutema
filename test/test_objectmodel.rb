@@ -1,3 +1,5 @@
+# Copyright (c) 2007-2020 Vassilis Rizopoulos. All rights reserved.
+
 require 'test/unit'
 require_relative '../lib/rutema/core/objectmodel'
 module TestRutema
