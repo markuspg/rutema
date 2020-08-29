@@ -223,23 +223,44 @@ module Rutema
     end
   end
 
+  ##
+  # Module offering convenience methods for creating error and normal messages
+  #
+  # The only requirement for including classes is that a @queue instance
+  # variable exists where the created messages can be pushed to.
+  #
+  # Messages pushed through these convenience functions will have their
+  # timestamp set to the moment of their creation.
   module Messaging
-    #Signal an error - use the test name/id as the identifier
-    def error identifier,message
-      @queue.push(ErrorMessage.new(:test=>identifier,:text=>message,:timestamp=>Time.now))
+    ##
+    # Push a new ErrorMessage to the queue
+    #
+    # +identifier+ will be used for the test name and +message+ for the text.
+    def error(identifier, message)
+      @queue.push(ErrorMessage.new(test: identifier, text: message))
     end
 
-    #Informational message during test runs
-    def message message
-      case message
-      when String
-        @queue.push(Message.new(:text=>message,:timestamp=>Time.now))
-      when Hash
-        hm=Message.new(message)
-        hm=RunnerMessage.new(message) if message[:test] && message["status"]
-        hm.timestamp=Time.now
-        @queue.push(hm)
-      end
+    ##
+    # Push a new Message or RunnerMessage to the queue
+    #
+    # +message+ can either be a String or a Hash instance. In case of a String
+    # the test name attribute will be unset and the +message+ will become the
+    # text of the Message instance.
+    #
+    # If +message+ is an instance of Hash the created message will be
+    # initialized from it. If the Hash contains a 'status' and a +:test+ key a
+    # RunnerMessage will be created, otherwise a Message
+    def message(message)
+      hm = case message
+           when String
+             Message.new(text: message)
+           when Hash
+             if message[:test] && message['status']
+               RunnerMessage.new(message)
+             else Message.new(message)
+             end
+           end
+      @queue.push(hm) if hm.is_a?(Message)
     end
   end
 
