@@ -148,33 +148,78 @@ module Rutema
     end
   end
 
-  #While executing tests the state of each test is collected in an 
-  #instance of ReportState and the collection is at the end passed to the available block reporters
+  ##
+  # ReportState is used by the Reporters::Collector event reporter to accumulate
+  # all RunnerMessage instances emitted by a specific test. This accumulated
+  # data can then in the end be passed to block reporters.
   #
-  #ReportState assumes the timestamp of the first message, the status of the last message
-  #and accumulates the duration reported by all messages in it's collection.
+  # ReportState permanently assumes the name of the respective test in its
+  # +test+ attribute and the timestamp of the first received message in its
+  # +timestamp+ attribute.
+  #
+  # Durations will be accumulated in the +duration+ attribute and all inserted
+  # messages in the +steps+ attribute. The +status+ attribute will always be set
+  # to the status of the highest priority of all the inserted messages. The
+  # order of the status priorities can be seen in ascending order in
+  # STATUS_CODES in the Rutema module
   class ReportState
+    ##
+    # Holds all inserted RunnerMessage instances
     attr_accessor :steps
 
+    ##
+    # Accumulates the durations of all inserted messages
     attr_reader :duration
+    ##
+    # If the Message passed on initialization was a special one
     attr_reader :is_special
+    ##
+    # Always has the status of the highest priority of all inserted messages
     attr_reader :status
+    ##
+    # The name of the respective test whose messages this ReportState collects
     attr_reader :test
+    ##
+    # The timestamp of the first message of the test
     attr_reader :timestamp
 
-    def initialize message
-      @test=message.test
-      @timestamp=message.timestamp
-      @duration=message.duration
-      @status=message.status
-      @steps=[message]
-      @is_special=message.is_special
+    ##
+    # Create a new ReportState instance from a RunnerMessage
+    def initialize(message)
+      @duration = message.duration
+      @is_special = message.is_special
+      @status = message.status
+      @steps = [message]
+      @test = message.test
+      @timestamp = message.timestamp
     end
 
+    ##
+    # Accumulate a further RunnerMessage instance
+    #
+    # Raises a RunnerError if a message of a different test is being inserted
+    # than what the ReportState instance was created with
     def <<(message)
-      @steps<<message
-      @duration+=message.duration
-      @status=message.status unless message.status.nil? || (!@status.nil? && STATUS_CODES.find_index(message.status) < STATUS_CODES.find_index(@status))
+      if message.test != @test
+        raise Rutema::RunnerError,
+              "Attempted to insert \"#{message.test}\" message into \"#{@test}\" ReportTestStates"
+      end
+
+      append_message_and_update(message)
+    end
+
+    private
+
+    ##
+    # Add message to the steps Array and update duration and status attributes
+    def append_message_and_update(message)
+      @duration += message.duration
+      unless message.status.nil? \
+        || (!@status.nil? && STATUS_CODES.find_index(message.status) \
+            < STATUS_CODES.find_index(@status))
+        @status = message.status
+      end
+      @steps << message
     end
   end
 
