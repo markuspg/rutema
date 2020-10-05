@@ -3,7 +3,7 @@
 source 'https://rubygems.org'
 
 gem 'highline', '~> 2.0.3', require: false
-gem 'patir', '~> 0.9.0', require: false
+gem 'patir', '~> 0.10.0', require: false
 
 group :development do
   gem 'coveralls', '~> 0.8.23', require: false

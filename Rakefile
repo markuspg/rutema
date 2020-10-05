@@ -24,7 +24,7 @@ Hoe.spec 'rutema' do |prj|
   prj.local_rdoc_dir = 'doc/rdoc'
   prj.readme_file = 'README.md'
   prj.extra_deps << ['highline', '~> 2.0.3']
-  prj.extra_deps << ['patir', '~> 0.9.0']
+  prj.extra_deps << ['patir', '~> 0.10.0']
   prj.spec_extras = { executables: ['rutema'], default_executable: 'rutema' }
 end
 
