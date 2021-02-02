@@ -9,7 +9,7 @@ group :development do
   gem 'coveralls', '~>0.8.0', require: false
   gem 'hoe', '~>3.22.0', require: false
   gem 'mocha', '~>1.12.0', require: false
-  gem 'pry', require: false
+  gem 'pry', '~>0.13.0', require: false
   gem 'rdoc', '~>5.0.0', require: false
   gem 'test-unit', '~>3.2.3', require: false
 end
