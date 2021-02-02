@@ -2,7 +2,7 @@
 
 source 'https://rubygems.org'
 
-gem 'highline', '~>1.7', require: false
+gem 'highline', '~>2.0.0', require: false
 gem 'patir', '~>0.8', require: false
 
 group :development do
