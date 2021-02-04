@@ -31,8 +31,10 @@ configure do |cfg|
 end
 EOT
 
-module TestRutema
-  class TestRutemaConfiguration<Test::Unit::TestCase
+module Rutema::Test
+  ##
+    # Verify the correct functionality of Rutema::Configuration
+    class Configuration < Test::Unit::TestCase
     def test_rutema_configuration
       cfg="foo.cfg"
       File.expects(:read).with("full.rutema").returns(FULL_CONFIG)

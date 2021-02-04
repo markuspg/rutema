@@ -6,8 +6,10 @@ require_relative '../lib/rutema/core/engine'
 require_relative '../lib/rutema/reporters/junit'
 require 'mocha/test_unit'
 
-module TestRutema
-  class TestReporters<Test::Unit::TestCase
+module Rutema::Test
+  ##
+  # Verify the correct functionality of the Rutema::Reporters module
+  class Reporters < Test::Unit::TestCase
     def test_junit
       #Rutema::Utilities.expects(:write_file).returns("OK")
       configuration = mock()

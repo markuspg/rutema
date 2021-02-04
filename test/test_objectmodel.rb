@@ -5,7 +5,7 @@ require 'test/unit'
 
 require_relative '../lib/rutema/core/objectmodel'
 
-module TestRutema
+module Rutema::Test
   class DummyCommand
     include Batir::Command
     def initialize
@@ -17,7 +17,10 @@ module TestRutema
   class Dummy
     include Rutema::SpecificationElement
   end
-  class TestSpecificationElement<Test::Unit::TestCase
+
+  ##
+  # Verify the correct functionality of Rutema::SpecificationElement
+  class SpecificationElement < Test::Unit::TestCase
     def test_attribute
       obj=Dummy.new
       assert_raise(NoMethodError) { obj.name }
@@ -42,7 +45,10 @@ module TestRutema
       assert_equal(obj.name, "name")
     end
   end
-  class TestStep<Test::Unit::TestCase
+
+  ##
+  # Verify the correct functionality of Rutema::Step
+  class Step < Test::Unit::TestCase
     def test_new
       step=Rutema::Step.new("Step",DummyCommand.new())
       assert_not_equal("dummy", step.name)
@@ -58,7 +64,10 @@ module TestRutema
       assert(/0 - .*DummyCommand.*/=~step.to_s)
     end
   end
-  class TestScenario<Test::Unit::TestCase
+
+  ##
+  # Verify the correct functionality of Rutema::Scenario
+  class Scenario < Test::Unit::TestCase
     def test_add_step
       scenario=Rutema::Scenario.new([])
       assert(scenario.steps.empty?)
@@ -69,7 +78,10 @@ module TestRutema
       assert_equal(2,scenario.steps.size)
     end
   end
-  class TestSpecification<Test::Unit::TestCase
+
+  ##
+  # Verify the correct functionality of Rutema::Specification
+  class Specification < Test::Unit::TestCase
     def test_new
       spec=Rutema::Specification.new(:name=>"name",:title=>"title",:description=>"description")
       assert(!spec.has_version?, "Version present")

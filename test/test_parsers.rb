@@ -8,7 +8,9 @@ require_relative '../lib/rutema/parsers/xml'
 
 
 #$DEBUG=true
-module TestRutema
+module Rutema::Test
+  ##
+  # Module with a collection of samples for specification tests
   module Samples
     SAMPLE_SPEC=<<-EOT
     <specification name="sample">
@@ -86,10 +88,10 @@ module Rutema::Test
       assert_nothing_raised { parser.validate_configuration }
     end
   end
-end
 
-module TestRutema
-  class TestXMLParser<Test::Unit::TestCase
+  ##
+  # Verify the correct functionality of Rutema::Parsers::XML
+  class XMLParser < Test::Unit::TestCase
     def test_parse_specification
       config=stub()
       config.stubs(:parser).returns({})

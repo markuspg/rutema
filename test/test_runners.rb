@@ -9,8 +9,10 @@ require 'mocha/test_unit'
 require_relative '../lib/rutema/core/objectmodel'
 require_relative '../lib/rutema/core/runner'
 
-module TestRutema
-  class TestRunner<Test::Unit::TestCase
+module Rutema::Test
+  ##
+  # Verify the correct functionality of Rutema::Runners::Default
+  class RunnerDefault < Test::Unit::TestCase
     def test_new
       scenario=Rutema::Scenario.new([Rutema::Step.new("desc")])
       spec=Rutema::Specification.new(:scenario=>scenario)

@@ -8,7 +8,7 @@ require_relative '../lib/rutema/core/engine'
 require_relative '../lib/rutema/core/objectmodel'
 require_relative '../lib/rutema/parsers/xml'
 
-module TestRutema
+module Rutema::Test
   class MockRunner
     attr_accessor :setup,:teardown
     def initialize config
@@ -37,7 +37,9 @@ module TestRutema
     end
   end
 
-  class TestEngine<Test::Unit::TestCase
+  ##
+  # Verify the correct functionality of Rutema::Engine
+  class Engine < Test::Unit::TestCase
     def test_checks
       conf={}
       assert_raise(NoMethodError){Rutema::Engine.new(conf)}
