@@ -2,32 +2,54 @@
 # Copyright (c) 2021 Markus Prasser. All rights reserved.
 
 module Rutema
+  STATUS_CODES = [:started, :skipped, :success, :warning, :error]
 
-  STATUS_CODES=[:started,:skipped,:success,:warning,:error]
-
-  #Represents the data beeing shunted between the components in lieu of logging.
+  ##
+  # Message is the base class of different message types for exchanging data
   #
-  #This is the primary type passed to the event reporters
+  # The two classes ErrorMessage and RunnerMessage are the primarily used
+  # message classes throughout Rutema.
+  #
+  # Messages are mostly created by Engine and Runners class instances through
+  # the Messaging module. Errors within Rutema will be represented by
+  # ErrorMessage instances. Test errors are represented by RunnerMessage
+  # instances which have their +status+ attribute set to +:error+.
   class Message
-    attr_accessor :test,:text,:timestamp
-    #Keys used:
-    # test - the test id/name
-    # text - the text of the message
-    # timestamp
-    def initialize params
-      @test=params.fetch(:test,"")
-      @test||=""
-      @text=params.fetch(:text,"")
-      @timestamp=params.fetch(:timestamp,Time.now)
+    ##
+    # The test id or name of the respective test
+    attr_accessor :test
+    ##
+    # The text of the message
+    attr_accessor :text
+    ##
+    # A timestamp respective to the message (in all known cases the time of
+    # message creation)
+    attr_accessor :timestamp
+
+    ##
+    # Initialize a new message from a Hash
+    #
+    # The following keys of the Hash are used:
+    # * +test+ - the test id/name (defaults to an empty String)
+    # * +text+ - the text of the message (defaults to an empty String)
+    # * +timestamp+ - a timestamp (defaults to +Time.now+)
+    def initialize(params)
+      @test = params.fetch(:test, '')
+      @test ||= ''
+      @text = params.fetch(:text, '')
+      @timestamp = params.fetch(:timestamp, Time.now)
     end
 
+    ##
+    # Convert the Message instance to a String representation
     def to_s
-      msg=""
-      msg<<"#{@test} " unless @test.empty?
-      msg<<@text
-      return msg
+      msg = ''
+      msg << "#{@test} " unless @test.empty?
+      msg << @text
+      msg
     end
   end
+
   #What it says on the tin.
   class ErrorMessage<Message
     def to_s
