@@ -1,9 +1,23 @@
+# Copyright (c) 2007-2017 Vassilis Rizopoulos. All rights reserved.
+# Copyright (c) 2021 Markus Prasser. All rights reserved.
+
+# frozen_string_literal: true
+
 module Rutema
-  #This module defines the version numbers for the library
+  ##
+  # Module defining the version numbers of rutema
   module Version
-    MAJOR=2
-    MINOR=0
-    TINY=0
-    STRING=[ MAJOR, MINOR, TINY ].join( "." )
+    ##
+    # The major version of rutema
+    MAJOR = 2
+    ##
+    # The minor version of rutema
+    MINOR = 0
+    ##
+    # The tiny version of rutema
+    TINY = 0
+    ##
+    # The version information of rutema assembled as a String
+    STRING = [MAJOR, MINOR, TINY].join('.')
   end
 end
