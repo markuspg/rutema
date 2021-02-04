@@ -1,6 +1,6 @@
 require 'test/unit'
 require 'ostruct'
-require 'mocha/setup'
+require 'mocha/test_unit'
 require_relative '../lib/rutema/parsers/xml'
 
 
