@@ -38,7 +38,7 @@ Rutema core provides a reference implementation of a parser for a simple but ext
 ## Dependencies
 
 The core functionality of rutema depends on the following gems:
- * [patir](http://github.com/damphyr/patir)
+ * [Batir](http://github.com/markuspg/batir)
  * [highline](http://highline.rubyforge.org/)
 
 ## License

@@ -1,5 +1,7 @@
 #  Copyright (c) 2007-2017 Vassilis Rizopoulos. All rights reserved.
+
 require 'highline'
+
 module Rutema
   #The Elements module provides the namespace for the various modules adding parser functionality
   module Elements
@@ -14,7 +16,7 @@ module Rutema
       # <echo text="A meaningful message"/>
       # <echo>A meaningful message</echo>
       def element_echo step
-        step.cmd=Patir::RubyCommand.new("echo"){|cmd| cmd.error="";cmd.output="#{step.text}";$stdout.puts(cmd.output) ;:success}
+        step.cmd=Batir::RubyCommand.new("echo"){|cmd| cmd.error="";cmd.output="#{step.text}";$stdout.puts(cmd.output) ;:success}
         return step
       end
       #prompt asks the user a yes/no question. Answering yes means the step is succesful.
@@ -23,7 +25,7 @@ module Rutema
       #A prompt element automatically makes a specification "attended"
       def element_prompt step
          step.attended=true
-         step.cmd=Patir::RubyCommand.new("prompt") do |cmd|  
+         step.cmd=Batir::RubyCommand.new("prompt") do |cmd|  
           cmd.output=""
           cmd.error=""
           if HighLine.new.agree("#{step.text}")
@@ -40,7 +42,7 @@ module Rutema
         raise ParserError,"missing required attribute cmd in #{step}" unless step.has_cmd?
         wd=Dir.pwd
         wd=step.working_directory if step.has_working_directory?
-        step.cmd=Patir::ShellCommand.new(:cmd=>step.cmd,:working_directory=>File.expand_path(wd))
+        step.cmd=Batir::ShellCommand.new(:cmd=>step.cmd,:working_directory=>File.expand_path(wd))
         return step  
       end
     end

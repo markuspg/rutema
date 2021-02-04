@@ -1,6 +1,6 @@
 #  Copyright (c) 2007-2017 Vassilis Rizopoulos. All rights reserved.
 require 'rexml/document'
-require 'patir/command'
+require 'batir/command'
 require_relative '../core/parser'
 require_relative '../core/objectmodel'
 require_relative '../elements/minimal'

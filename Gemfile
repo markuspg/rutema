@@ -2,8 +2,8 @@
 
 source 'https://rubygems.org'
 
+gem 'batir', git: 'https://github.com/markuspg/batir', tag: '1.0.0'
 gem 'highline', '~>2.0.0', require: false
-gem 'patir', '~>0.8', require: false
 
 group :development do
   gem 'coveralls', '~>0.8.0', require: false

@@ -13,7 +13,7 @@ Hoe.spec "rutema" do |prj|
   prj.description= "rutema is a test execution tool and a framework for organizing and managing test execution across different tools.\nIt enables the combination of different test tools while it takes care of logging, reporting, archiving of results and formalizes execution of automated and manual tests.\nIt's purpose is to make testing in heterogeneous environments easier."
   prj.local_rdoc_dir='doc/rdoc'
   prj.readme_file="README.md"
-  prj.extra_deps<<["patir", "~>0.8"]
+  prj.extra_deps<<["batir", "~>1.0.0"]
   prj.extra_deps<<["highline","~>1.7"]
   prj.spec_extras={:executables=>["rutema"],:default_executable=>"rutema"}
 end

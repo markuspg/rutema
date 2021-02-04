@@ -1,6 +1,6 @@
 require 'test/unit'
 require 'ostruct'
-require 'patir/command'
+require 'batir/command'
 require 'mocha/setup'
 
 require_relative '../lib/rutema/core/objectmodel'
@@ -23,7 +23,7 @@ module TestRutema
     end
     
     def test_run_exceptions
-      step=Rutema::Step.new("bad",Patir::RubyCommand.new("bad"){|cmd| raise "Bad command"})
+      step=Rutema::Step.new("bad", Batir::RubyCommand.new("bad"){|cmd| raise "Bad command"})
       scenario=Rutema::Scenario.new([step])
       spec=Rutema::Specification.new(:scenario=>scenario)
       queue=Queue.new

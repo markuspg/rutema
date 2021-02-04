@@ -1,3 +1,11 @@
+GIT
+  remote: https://github.com/markuspg/batir
+  revision: 8e27a7dbacb740b50ef9172efbff482def4f585e
+  tag: 1.0.0
+  specs:
+    batir (1.0.0)
+      systemu (~> 2.6.0)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -15,8 +23,6 @@ GEM
     json (2.5.1)
     method_source (1.0.0)
     mocha (1.12.0)
-    patir (0.9.0)
-      systemu (~> 2.6)
     power_assert (2.0.0)
     pry (0.13.1)
       coderay (~> 1.1)
@@ -39,17 +45,17 @@ GEM
       sync
 
 PLATFORMS
-  ruby
+  x86_64-linux
 
 DEPENDENCIES
+  batir!
   coveralls (~> 0.8.0)
   highline (~> 2.0.0)
   hoe (~> 3.22.0)
   mocha (~> 1.12.0)
-  patir (~> 0.8)
   pry (~> 0.13.0)
   rdoc (~> 6.3.0)
   test-unit (~> 3.4.0)
 
 BUNDLED WITH
-   1.17.3
+   2.2.8

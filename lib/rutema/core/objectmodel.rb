@@ -1,5 +1,6 @@
 #  Copyright (c) 2007-2017 Vassilis Rizopoulos. All rights reserved.
-require 'patir/command'
+
+require 'batir/command'
 
 module Rutema
   #This module adds functionality that allows us to 
@@ -124,7 +125,7 @@ module Rutema
   #
   #number - this is set when the step is assigned to a Scenario and is the sequence number
   #
-  #cmd - the command associated with this step. This should quack like Patir::Command.
+  #cmd - the command associated with this step. This should quack like Batir::Command.
   #
   #status - one of :not_executed, :success, :warning, :error. Encapsulates the underlying command's status
   #
@@ -145,7 +146,7 @@ module Rutema
   #See Rutema::SpecificationElement for the implementation details. 
   class Step
     include SpecificationElement
-    include Patir::Command
+    include Batir::Command
     
     #_txt_ describes the step, _cmd_ is the command to run
     def initialize txt="",cmd=nil
@@ -209,13 +210,13 @@ module Rutema
   
 end
 
-class Patir::ShellCommand
+class Batir::ShellCommand
   def to_s#:nodoc:
     return @command
   end
 end
 
-class Patir::RubyCommand
+class Batir::RubyCommand
   def to_s#:nodoc:
     return @name
   end

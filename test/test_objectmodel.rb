@@ -1,8 +1,10 @@
 require 'test/unit'
+
 require_relative '../lib/rutema/core/objectmodel'
+
 module TestRutema
   class DummyCommand
-    include Patir::Command
+    include Batir::Command
     def initialize
       @name="dummy"
       @output="output"
