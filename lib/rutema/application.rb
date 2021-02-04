@@ -1,3 +1,6 @@
+# Copyright (c) 2007-2017 Vassilis Rizopoulos. All rights reserved.
+# Copyright (c) 2021 Markus Prasser. All rights reserved.
+
 require  'optparse'
 require_relative "core/configuration"
 require_relative "core/engine"
